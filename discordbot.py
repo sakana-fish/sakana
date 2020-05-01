@@ -165,6 +165,69 @@ async def s(ctx, about = "交流戦募集 {}".format(datetime.date.today()), cnt
         await msg.edit(embed=test)
         # リアクション消す。メッセージ管理権限がないとForbidden:エラーが出ます。
         await msg.remove_reaction(str(reaction.emoji), user)
+        
+@client.command()
+async def rec(ctx1, about, cnt, settime2):
+    cnt, settime2 = int(cnt), float(settime2)
+    settime2 = 60*settime2
+    #print(ctx1.author.name)
+    recruiter = ctx1.author.name
+    print(recruiter)	
+    list = [">"]
+    list.append(ctx1.author.name)
+    mem = []
+    mem.append(ctx1.author.mention)
+    test2 = discord.Embed(title=about,colour=0xe74c3c)
+    test2.add_field(name=f"@{cnt} ", value=' '.join(list), inline=False)
+    msg2 = await ctx1.send(embed=test2)
+    await msg2.add_reaction('🐟')
+    await msg2.add_reaction('✖')
+    await msg2.add_reaction('🥺')
+    
+    def check(reaction, user):
+        emoji = str(reaction.emoji)
+        if user.bot == True:    # botは無視
+            pass
+        else:
+            return emoji
+
+    while len(list)-1 <= 100:
+        try:
+            reaction, user = await client.wait_for('reaction_add', timeout=settime2, check=check)
+        except asyncio.TimeoutError:
+            await msg2.delete()
+            break
+        else:
+            if msg2.id == reaction.message.id:
+                if str(reaction.emoji) == '🐟':
+                    list.append(user.name)
+                    mem.append(user.mention)
+                    cnt -= 1
+                    if cnt == 0:
+                        member = ' '.join(mem)
+                        test2 = discord.Embed(title=about,colour=0xe74c3c)
+                        test2.add_field(name=f"@{cnt} ", value=' '.join(list), inline=False)
+                        await msg2.edit(embed=test2)
+                        await msg2.remove_reaction(str(reaction.emoji), user)
+                        await ctx1.send("〆 {}".format(member))  
+                        break
+                if str(reaction.emoji) == '✖':
+                    if user.name in list:
+                        list.remove(user.name)
+                        mem.remove(user.mention)
+                        cnt += 1
+                if str(reaction.emoji) == '🥺': 
+                    if user.name == recruiter:
+                      await msg2.delete()
+                      break
+                    
+                    
+                      
+        test2 = discord.Embed(title=about,colour=0xe74c3c)
+        test2.add_field(name=f"@{cnt} ", value=' '.join(list), inline=False)
+        await msg2.edit(embed=test2)
+        # リアクション消す。メッセージ管理権限がないとForbidden:エラーが出ます。
+        await msg2.remove_reaction(str(reaction.emoji), user)
 
   
 token = os.environ['DISCORD_BOT_TOKEN']
