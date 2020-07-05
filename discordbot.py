@@ -26,11 +26,11 @@ async def on_ready():
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
 
-    
+sheetkey = os.environ['SHEETKEY']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('/app/spreadsheet-test-282320-a54e87c8c929.json', scope)
 gc = gspread.authorize(credentials)
-wb = gc.open_by_key(os.getenv('Sheetkey'))
+wb = gc.open_by_key(sheetkey)
 ws = wb.worksheet("さかなテスト")
 ws2 = wb.worksheet("交流戦記録")
 
