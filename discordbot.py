@@ -22,7 +22,7 @@ async def on_ready():
     print(client.user.id)
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
-
+"""
 sheetkey = os.environ['SHEETKEY']
 path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -31,7 +31,7 @@ gc = gspread.authorize(credentials)
 wb = gc.open_by_key(sheetkey)
 ws = wb.worksheet("戦績記録")
 ws2 = wb.worksheet("交流戦記録")  
-
+"""
 
 @client.command()
 async def fish2(ctx, about = "🐟🐟🐟 戦績記録使い方 🐟🐟🐟"):
