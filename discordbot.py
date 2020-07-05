@@ -1,5 +1,4 @@
 import os
-import keep_alive
 import discord
 import datetime
 import random
@@ -317,7 +316,6 @@ async def teamrename(ctx):
   await asyncio.sleep(3)
   await msg.delete()
 
-    
-keep_alive.keep_alive()
+
 token = os.environ['DISCORD_BOT_TOKEN']
 client.run(token)
