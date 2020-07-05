@@ -28,7 +28,7 @@ async def fish(ctx2, about = "🐟🐟🐟 使い方 🐟🐟🐟"):
    
 @client.command()
 async def c(ctx):
-  print(os.path.abspath('spreadsheet-test-282320-a54e87c8c929.json'))
+  await ctx.send(os.path.abspath('spreadsheet-test-282320-a54e87c8c929.json'))
 
 @client.command()
 async def t(ctx):
