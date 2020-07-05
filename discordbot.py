@@ -1,520 +1,241 @@
 import discord
 import datetime
 import os
-
-#https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
-
-#list = []
-#apre = 'おさかなのサーバー'
-
-from discord.ext import commands
+import keep_alive
+import re
+import random
 import asyncio
+import gspread
+import json
+from oauth2client.service_account import ServiceAccountCredentials 
+from discord.ext import commands
 
 client = commands.Bot(command_prefix='.')
 @client.event
 async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print('Logged in')
     print('------')  
-
-@client.command()
-async def cal(ctx2):
-  i = 0
-  a1 = 0
-  a2 = 0
-  b1 = 0
-  b2 = 0
-  c1 = ""
-  c2 = str(a2)+" - "+str(b2)
-  cal = discord.Embed(title="🐟即時集計🐟",color=0xe74c3c,description="{} @{}\n{}".format(c2,12-i,c1))
-  result = await ctx2.send(embed=cal)
-  await ctx2.send("結果を入力してください")
-
-  for k in range(12):
-    i += 1
-    check = 0
-    while check == 0:
-      rank = await client.wait_for('message')
-      rank = rank.content
-      await ctx2.channel.purge(limit=1)
-      
-      #print(rank)
-      if len(rank) == 6:        
-        check = 1
-        #print("OK")
-      else:
-        await ctx2.send("try again")
     
-    ranklist = ''
-    a1 = 0
-    for j in range(6):
-      ranklist += str(int(rank[j],16))+" "
-      point = int(rank[j],16)
-      if point == 1:
-        point = 15
-      elif point == 2:
-        point = 12
-      else:
-        point = 13-point
-      a1 += point
-      #print(a1)
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/runner/FH/spreadsheet-test-282320-a54e87c8c929.json', scope)
+gc = gspread.authorize(credentials)
+wb = gc.open_by_key(os.getenv('Sheetkey'))
+ws = wb.worksheet("さかなテスト")
+ws2 = wb.worksheet("交流戦記録")
 
-    b1 = 82-a1
-    a2 += a1
-    b2 += b1
-    c1 += "race"+str(i)+"\t"+str(a1)+" - "+str(b1)+"\t点差 "+str(a1-b1)+"\t順位 "+ranklist+"\n"
-    c2 = str(a2)+" - "+str(b2)+"\t点差 "+str(a2-b2)
-    cal = discord.Embed(title="🐟即時集計🐟",color=0xe74c3c,description="{} @{}\n順位 {}\n--------------------------\n{}".format(c2,12-i,ranklist,c1))
-    await result.edit(embed=cal)
-    #print(a1,a2,b1,b2,c1,c2)    
-        
 
 @client.command()
-async def s(ctx, about = "交流戦募集 {}".format(datetime.date.today()), cnt1 = 6, settime = 43200):
-    cnt1, settime = int(cnt1), float(settime)
-    a = ctx.guild.name
-    print(a)
-    #list.append(0)
-    #b = len(list)
-    #print(b)
+async def p(ctx,a):
+
+  def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+  try:
+    cell=ws.find(str(ctx.author.id+ctx.guild.id)) 
+  except:
+    ws.append_row([str(ctx.author.id+ctx.guild.id),ctx.guild.name,ctx.author.name])
+    cell=ws.find(str(ctx.author.id+ctx.guild.id))
+    for i in range(10):
+      ws.update_cell(cell.row,len(ws.row_values(cell.row))+1,0)
+
+  #C2:totalnum	D3:winnum	E4:losenum	F5:winrate	G6:ave	H7:winave	I8:loseave	J9:total	K10:wintotal	L11:losetotal
+
+  b=ws.row_values(cell.row)
+  if is_int(a)==False:
+    msg = await ctx.send("エラー")
+    await asyncio.sleep(3)
+    await msg.delete()
+  else:
+    b[3]=int(b[3])+1
+    a=int(a)
+    if a>0:
+      b[4]=int(b[4])+1
+      b[11]=int(b[11])+a
+      b[8]=b[11]//b[4]
+    else:
+      a=-1*int(a)
+      b[5]=int(b[5])+1
+      b[12]=int(b[12])+a
+      b[9]=b[12]//b[5]
+    b[10]=int(b[10])+a
+    b[6]=int(b[4])*100//b[3]
+    b[7]=b[10]//b[3]
+    for i in range(13):
+      ws.update_cell(cell.row,i+1,b[i])
+ 
+    msg = await ctx.send("記録しました")
+    await asyncio.sleep(3)
+    await msg.delete()
   
-    list1 = [">"]
-    list2 = [">"]
-    list3 = [">"]
-    list4 = [">"]
-    mem1 = []
-    mem2 = []
-    mem3 = []
-    mem4 = []
-    cnt2 = 6
-    cnt3 = 6
-    cnt4 = 6
-    check1 = 0
-    check2 = 0
-    check3 = 0
-    check4 = 0
-
-    test = discord.Embed(title=about,colour=0x1e90ff)
-    test.add_field(name=f"21@{cnt1} ", value=' '.join(list1), inline=False)
-    test.add_field(name=f"22@{cnt2} ", value=' '.join(list2), inline=False)
-    test.add_field(name=f"23@{cnt3} ", value=' '.join(list3), inline=False)
-    test.add_field(name=f"24@{cnt4} ", value=' '.join(list4), inline=False)
-    msg = await ctx.send(embed=test)
-    #投票の欄
-
-    await msg.add_reaction('🇦')
-    await msg.add_reaction('🇧')
-    await msg.add_reaction('🇨')
-    await msg.add_reaction('🇩')
-    await msg.add_reaction('✖')
-    #print(msg.id)
-
-    def check(reaction, user):
-        emoji = str(reaction.emoji)
-        if user.bot == True:    # botは無視
-            pass
-        else:
-            return emoji
-
-    while len(list1)-1 <= 10:
-        try:
-            reaction, user = await client.wait_for('reaction_add', timeout=settime, check=check)
-        except asyncio.TimeoutError:
-            break
-        else:
-            if msg.id == reaction.message.id:
-                if str(reaction.emoji) == '🇦':
-                    list1.append(user.name)
-                    mem1.append(user.mention)
-                    cnt1 -= 1
-                    if cnt1 == 0:
-                      if check1 == 0:
-                        member1 = ' '.join(mem1)
-                        await ctx.send("21〆 {}".format(member1))
-                        check1 +=1
-                   
-                if str(reaction.emoji) == '🇧':
-                    list2.append(user.name)
-                    mem2.append(user.mention)
-                    cnt2 -= 1
-                    if cnt2 == 0:
-                      if check2 == 0:
-                        member2 = ' '.join(mem2)
-                        await ctx.send("22〆 {}".format(member2))
-                        check2 +=1
-
-                if str(reaction.emoji) == '🇨':
-                    list3.append(user.name)
-                    mem3.append(user.mention)
-                    cnt3 -= 1
-                    if cnt3 == 0:
-                      if check3 == 0:
-                        member3 = ' '.join(mem3)
-                        await ctx.send("23〆 {}".format(member3))
-                        check3 +=1
-
-                if str(reaction.emoji) == '🇩':
-                    list4.append(user.name)
-                    mem4.append(user.mention)
-                    cnt4 -= 1
-                    if cnt4 == 0:
-                      if check4 == 0:
-                        member4 = ' '.join(mem4)
-                        await ctx.send("24〆 {}".format(member4))
-                        check4 +=1
-      
-                elif str(reaction.emoji) == '✖':
-                    if user.name in list1:
-                        list1.remove(user.name)
-                        mem1.remove(user.mention)
-                        cnt1 += 1
-                    if user.name in list2:
-                        list2.remove(user.name)
-                        mem2.remove(user.mention)
-                        cnt2 += 1
-                    if user.name in list3:
-                        list3.remove(user.name)
-                        mem3.remove(user.mention)
-                        cnt3 += 1
-                    if user.name in list4:
-                        list4.remove(user.name)
-                        mem4.remove(user.mention)
-                        cnt4 += 1        
-                    else:
-                        pass
-
-        test = discord.Embed(title=about,colour=0x1e90ff)
-        test.add_field(name=f"21@{cnt1} ", value=' '.join(list1), inline=False)
-        test.add_field(name=f"22@{cnt2} ", value=' '.join(list2), inline=False)
-        test.add_field(name=f"23@{cnt3} ", value=' '.join(list3), inline=False)
-        test.add_field(name=f"24@{cnt4} ", value=' '.join(list4), inline=False)
-        await msg.edit(embed=test)
-        # リアクション消す。メッセージ管理権限がないとForbidden:エラーが出ます。
-        await msg.remove_reaction(str(reaction.emoji), user)
-
-@client.command()
-async def rec(ctx1, about, cnt, settime2):
-    cnt, settime2 = int(cnt), float(settime2)
-    settime2 = 60*settime2
-    #print(ctx1.author.name)
-    recruiter = ctx1.author.name
-    print(recruiter)	
-    list = [">"]
-    list.append(ctx1.author.name)
-    mem = []
-    mem.append(ctx1.author.mention)
-    test2 = discord.Embed(title=about,colour=0xe74c3c)
-    test2.add_field(name=f"@{cnt} ", value=' '.join(list), inline=False)
-    msg2 = await ctx1.send(embed=test2)
-    await msg2.add_reaction('🐟')
-    await msg2.add_reaction('✖')
-    await msg2.add_reaction('🥺')
-    
-    def check(reaction, user):
-        emoji = str(reaction.emoji)
-        if user.bot == True:    # botは無視
-            pass
-        else:
-            return emoji
-
-    while len(list)-1 <= 100:
-        try:
-            reaction, user = await client.wait_for('reaction_add', timeout=settime2, check=check)
-        except asyncio.TimeoutError:
-            await msg2.delete()
-            break
-        else:
-            if msg2.id == reaction.message.id:
-                if str(reaction.emoji) == '🐟':
-                    list.append(user.name)
-                    mem.append(user.mention)
-                    cnt -= 1
-                    if cnt == 0:
-                        member = ' '.join(mem)
-                        test2 = discord.Embed(title=about,colour=0xe74c3c)
-                        test2.add_field(name=f"@{cnt} ", value=' '.join(list), inline=False)
-                        await msg2.edit(embed=test2)
-                        await msg2.remove_reaction(str(reaction.emoji), user)
-                        await ctx1.send("〆 {}".format(member))  
-                        break
-                if str(reaction.emoji) == '✖':
-                    if user.name in list:
-                        list.remove(user.name)
-                        mem.remove(user.mention)
-                        cnt += 1
-                if str(reaction.emoji) == '🥺': 
-                    if user.name == recruiter:
-                      await msg2.delete()
-                      break
-                    
-                    
-                      
-        test2 = discord.Embed(title=about,colour=0xe74c3c)
-        test2.add_field(name=f"@{cnt} ", value=' '.join(list), inline=False)
-        await msg2.edit(embed=test2)
-        # リアクション消す。メッセージ管理権限がないとForbidden:エラーが出ます。
-        await msg2.remove_reaction(str(reaction.emoji), user)
-
-        
-@client.command()
-async def s2(ctx, about = "交流戦募集 {}".format(datetime.date.today()), cnt1 = 6, settime = 43200):
-    cnt1, settime = int(cnt1), float(settime)
-    a = ctx.guild.name
-    print(a)
-    #list.append(0)
-    #b = len(list)
-    #print(b)
+  await ctx.channel.purge(limit=1)
   
-    list1 = [">"]
-    list2 = [">"]
-    list3 = [">"]
-    list4 = [">"]
-    list5 = [">"]
-    list6 = [">"]
-    mem1 = []
-    mem2 = []
-    mem3 = []
-    mem4 = []
-    mem5 = []
-    mem6 = []
-    cnt2 = 6
-    cnt3 = 6
-    cnt4 = 6
-    cnt5 = 6
-    cnt6 = 6
-    check1 = 0
-    check2 = 0
-    check3 = 0
-    check4 = 0
-    check5 = 0
-    check6 = 0
-    
-
-    test = discord.Embed(title=about,colour=0x1e90ff)
-    test.add_field(name=f"21@{cnt1} ", value=' '.join(list1), inline=False)
-    test.add_field(name=f"22@{cnt2} ", value=' '.join(list2), inline=False)
-    test.add_field(name=f"23@{cnt3} ", value=' '.join(list3), inline=False)
-    test.add_field(name=f"24@{cnt4} ", value=' '.join(list4), inline=False)
-    test.add_field(name=f"25@{cnt5} ", value=' '.join(list5), inline=False)
-    test.add_field(name=f"26@{cnt6} ", value=' '.join(list6), inline=False)
-    msg = await ctx.send(embed=test)
-    #投票の欄
-
-    await msg.add_reaction('🇦')
-    await msg.add_reaction('🇧')
-    await msg.add_reaction('🇨')
-    await msg.add_reaction('🇩')
-    await msg.add_reaction('🇪')
-    await msg.add_reaction('🇫')
-    await msg.add_reaction('✖')
-    #print(msg.id)
-
-    def check(reaction, user):
-        emoji = str(reaction.emoji)
-        if user.bot == True:    # botは無視
-            pass
-        else:
-            return emoji
-
-    while len(list1)-1 <= 10:
-        try:
-            reaction, user = await client.wait_for('reaction_add', timeout=settime, check=check)
-        except asyncio.TimeoutError:
-            break
-        else:
-            if msg.id == reaction.message.id:
-                if str(reaction.emoji) == '🇦':
-                    list1.append(user.name)
-                    mem1.append(user.mention)
-                    cnt1 -= 1
-                    if cnt1 == 0:
-                      if check1 == 0:
-                        member1 = ' '.join(mem1)
-                        await ctx.send("21〆 {}".format(member1))
-                        check1 +=1
-                   
-                if str(reaction.emoji) == '🇧':
-                    list2.append(user.name)
-                    mem2.append(user.mention)
-                    cnt2 -= 1
-                    if cnt2 == 0:
-                      if check2 == 0:
-                        member2 = ' '.join(mem2)
-                        await ctx.send("22〆 {}".format(member2))
-                        check2 +=1
-
-                if str(reaction.emoji) == '🇨':
-                    list3.append(user.name)
-                    mem3.append(user.mention)
-                    cnt3 -= 1
-                    if cnt3 == 0:
-                      if check3 == 0:
-                        member3 = ' '.join(mem3)
-                        await ctx.send("23〆 {}".format(member3))
-                        check3 +=1
-
-                if str(reaction.emoji) == '🇩':
-                    list4.append(user.name)
-                    mem4.append(user.mention)
-                    cnt4 -= 1
-                    if cnt4 == 0:
-                      if check4 == 0:
-                        member4 = ' '.join(mem4)
-                        await ctx.send("24〆 {}".format(member4))
-                        check4 +=1
-                        
-                if str(reaction.emoji) == '🇪':
-                    list5.append(user.name)
-                    mem5.append(user.mention)
-                    cnt5 -= 1
-                    if cnt5 == 0:
-                      if check5 == 0:
-                        member5 = ' '.join(mem5)
-                        await ctx.send("25〆 {}".format(member5))
-                        check5 +=1        
-                                          
-                if str(reaction.emoji) == '🇫':
-                    list6.append(user.name)
-                    mem6.append(user.mention)
-                    cnt6 -= 1
-                    if cnt6 == 0:
-                      if check6 == 0:
-                        member6 = ' '.join(mem6)
-                        await ctx.send("26〆 {}".format(member6))
-                        check6 +=1                                              
-      
-                elif str(reaction.emoji) == '✖':
-                    if user.name in list1:
-                        list1.remove(user.name)
-                        mem1.remove(user.mention)
-                        cnt1 += 1
-                    if user.name in list2:
-                        list2.remove(user.name)
-                        mem2.remove(user.mention)
-                        cnt2 += 1
-                    if user.name in list3:
-                        list3.remove(user.name)
-                        mem3.remove(user.mention)
-                        cnt3 += 1
-                    if user.name in list4:
-                        list4.remove(user.name)
-                        mem4.remove(user.mention)
-                        cnt4 += 1        
-                    if user.name in list5:
-                        list5.remove(user.name)
-                        mem5.remove(user.mention)
-                        cnt5 += 1
-                    if user.name in list6:
-                        list6.remove(user.name)
-                        mem6.remove(user.mention)
-                        cnt6 += 1            
-                    else:
-                        pass
-
-        test = discord.Embed(title=about,colour=0x1e90ff)
-        test.add_field(name=f"21@{cnt1} ", value=' '.join(list1), inline=False)
-        test.add_field(name=f"22@{cnt2} ", value=' '.join(list2), inline=False)
-        test.add_field(name=f"23@{cnt3} ", value=' '.join(list3), inline=False)
-        test.add_field(name=f"24@{cnt4} ", value=' '.join(list4), inline=False)
-        test.add_field(name=f"25@{cnt5} ", value=' '.join(list5), inline=False)
-        test.add_field(name=f"26@{cnt6} ", value=' '.join(list6), inline=False)
-        await msg.edit(embed=test)
-        # リアクション消す。メッセージ管理権限がないとForbidden:エラーが出ます。
-        await msg.remove_reaction(str(reaction.emoji), user)
-
-
-@client.command()
-async def s3(ctx, about = "交流戦募集 {}".format(datetime.date.today()), cnt5 = 6, settime = 43200):
-    cnt5, settime = int(cnt5), float(settime)
-    a = ctx.guild.name
-    print(a)
-    #list.append(0)
-    #b = len(list)
-    #print(b)
   
-    list5 = [">"]
-    list6 = [">"]
-    mem5 = []
-    mem6 = []
-    cnt5 = 6
-    cnt6 = 6
-    check5 = 0
-    check6 = 0
-    
+@client.command()
+async def c(ctx):
+  print(ctx.author.id,ctx.guild.id,ctx.author.id+ctx.guild.id)
+  await ctx.send(os.path.abspath('spreadsheet-test-282320-a54e87c8c929.json'))
+  
 
-    test = discord.Embed(title=about,colour=0x1e90ff)
-    test.add_field(name=f"25@{cnt5} ", value=' '.join(list5), inline=False)
-    test.add_field(name=f"26@{cnt6} ", value=' '.join(list6), inline=False)
-    msg = await ctx.send(embed=test)
-    #投票の欄
-
-    await msg.add_reaction('🇪')
-    await msg.add_reaction('🇫')
-    await msg.add_reaction('✖')
-    #print(msg.id)
-
-    def check(reaction, user):
-        emoji = str(reaction.emoji)
-        if user.bot == True:    # botは無視
-            pass
-        else:
-            return emoji
-
-    while len(list5)-1 <= 10:
-        try:
-            reaction, user = await client.wait_for('reaction_add', timeout=settime, check=check)
-        except asyncio.TimeoutError:
-            break
-        else:
-            if msg.id == reaction.message.id:
-
-                if str(reaction.emoji) == '🇪':
-                    list5.append(user.name)
-                    mem5.append(user.mention)
-                    cnt5 -= 1
-                    if cnt5 == 0:
-                      if check5 == 0:
-                        member5 = ' '.join(mem5)
-                        await ctx.send("25〆 {}".format(member5))
-                        check5 +=1        
-                                          
-                if str(reaction.emoji) == '🇫':
-                    list6.append(user.name)
-                    mem6.append(user.mention)
-                    cnt6 -= 1
-                    if cnt6 == 0:
-                      if check6 == 0:
-                        member6 = ' '.join(mem6)
-                        await ctx.send("26〆 {}".format(member6))
-                        check6 +=1                                              
-      
-                elif str(reaction.emoji) == '✖':          
-                    if user.name in list5:
-                        list5.remove(user.name)
-                        mem5.remove(user.mention)
-                        cnt5 += 1
-                    if user.name in list6:
-                        list6.remove(user.name)
-                        mem6.remove(user.mention)
-                        cnt6 += 1            
-                    else:
-                        pass
-
-        test = discord.Embed(title=about,colour=0x1e90ff)       
-        test.add_field(name=f"25@{cnt5} ", value=' '.join(list5), inline=False)
-        test.add_field(name=f"26@{cnt6} ", value=' '.join(list6), inline=False)
-        await msg.edit(embed=test)
-        # リアクション消す。メッセージ管理権限がないとForbidden:エラーが出ます。
-        await msg.remove_reaction(str(reaction.emoji), user)
+@client.command()
+async def stats(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  b=ws.row_values(cell.row)
+  msg = discord.Embed(title="stats",colour=0x1e90ff)
+  msg.add_field(name="name", value=b[1], inline=False)
+  msg.add_field(name="play", value=b[3], inline=False)
+  msg.add_field(name="win rate", value=b[6]+"%", inline=False)
+  msg.add_field(name="average", value=b[7], inline=False)
+  msg.add_field(name="win-ave", value=b[8], inline=False)
+  msg.add_field(name="lose-ave", value=b[9], inline=False)
+  await ctx.channel.purge(limit=1)  
+  msg = await ctx.send(embed=msg)  
+  await asyncio.sleep(15)
+  await msg.delete() 
 
 
 @client.command()
-async def fish(ctx2, about = "🐟🐟🐟 使い方 🐟🐟🐟", cnt = 6, settime = 43200):
-  help1 = discord.Embed(title=about,color=0xe74c3c,description=".s,.s2,.s3: 交流戦募集開始※12時間で停止\n英語スタンプ: 挙手\n×スタンプ: 挙手全へ\n.rec: 募集開始(.rec 募集名 人数 制限時間(分))\n※募集開始した人の🥺スタンプで募集終了")
-  await ctx2.send(embed=help1)
+async def rename(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  ws.update_cell(cell.row,2,ctx.author.name)
+  msg = await ctx.send("名前を修正しました")
+  await asyncio.sleep(3)
+  await msg.delete()
 
 
+@client.command()
+async def revise(ctx,a):
+  def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+  try:
+    cell=ws.find(str(ctx.author.id+ctx.guild.id)) 
+  except:
+    ws.append_row([str(ctx.author.id+ctx.guild.id),ctx.guild.name,ctx.author.name])
+    cell=ws.find(str(ctx.author.id+ctx.guild.id))
+    for i in range(10):
+      ws.update_cell(cell.row,len(ws.row_values(cell.row))+1,0)
+
+  #C2:totalnum	D3:winnum	E4:losenum	F5:winrate	G6:ave	H7:winave	I8:loseave	J9:total	K10:wintotal	L11:losetotal
+
+  b=ws.row_values(cell.row)
+  if is_int(a)==False:
+    msg = await ctx.send("エラー")
+    await asyncio.sleep(3)
+    await msg.delete()
+  else:
+    b[3]=int(b[3])-1
+    a=int(a)
+    if a>0:
+      b[4]=int(b[4])-1
+      b[11]=int(b[11])-a
+      b[8]=b[11]//b[4]
+    else:
+      a=-1*int(a)
+      b[5]=int(b[5])-1
+      b[12]=int(b[12])-a
+      b[9]=b[12]//b[5]
+    b[10]=int(b[10])-a
+    b[6]=int(b[4])*100//b[3]
+    b[7]=b[10]//b[3]
+    for i in range(13):
+      ws.update_cell(cell.row,i+1,b[i])
+ 
+    msg = await ctx.send("修正しました")
+    await asyncio.sleep(3)
+    await msg.delete()
+  
+  await ctx.channel.purge(limit=1)
+
+
+@client.command()
+async def result(ctx):
+  cell=ws.find(str(ctx.guild.id))
+  b=ws.row_values(cell.row)
+  msg = discord.Embed(title="stats",colour=0x1e90ff)
+  msg.add_field(name="name", value=b[2], inline=False)
+  msg.add_field(name="play", value=b[3], inline=False)
+  msg.add_field(name="win rate", value=b[6]+"%", inline=False)
+  await ctx.channel.purge(limit=1)  
+  msg = await ctx.send(embed=msg)  
+  await asyncio.sleep(15)
+  await msg.delete() 
+
+
+@client.command()
+async def reset(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  for i in range(10):
+    ws.update_cell(cell.row,i+4,0)
+
+  msg = await ctx.send("リセットしました")
+  await asyncio.sleep(3)
+  await msg.delete()
+
+@client.command()
+async def r(ctx,a,b):
+  def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+  try:
+    cell=ws.find(str(ctx.guild.id)) 
+  except:
+    ws.append_row([str(ctx.guild.id),ctx.guild.name,"None"])
+    cell=ws.find(str(ctx.guild.id))
+    for i in range(4):
+      ws.update_cell(cell.row,len(ws.row_values(cell.row))+1,0)
+
+  b=ws.row_values(cell.row)
+  if is_int(a)==False:
+    msg = await ctx.send("エラー")
+    await asyncio.sleep(3)
+    await msg.delete()
+  else:
+    b[3]=int(b[3])+1
+    a=int(a)
+    if a>0:
+      b[4]=int(b[4])+1      
+    else:      
+      b[5]=int(b[5])+1
+    b[6]=b[3]*100//int(b[4])
+  for i in range(7):
+      ws.update_cell(cell.row,i+1,b[i])
+
+
+@client.command()
+async def teamstats(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  b=ws.row_values(cell.row)
+  msg = discord.Embed(title="stats",colour=0x1e90ff)
+  msg.add_field(name="name", value=b[1], inline=False)
+  msg.add_field(name="play", value=b[3], inline=False)
+  msg.add_field(name="win rate", value=b[6]+"%", inline=False)
+  await ctx.channel.purge(limit=1)  
+  msg = await ctx.send(embed=msg)  
+  await asyncio.sleep(15)
+  await msg.delete() 
+
+
+@client.command()
+async def a(ctx):
+  print(ctx.channel.id)
+  try:
+    await client.wait_for('message',timeout=10)
+  except asyncio.TimeoutError:
+    print("Timeout")
+  else:
+    print("OK")
   
 token = os.environ['DISCORD_BOT_TOKEN']
 client.run(token)
