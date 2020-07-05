@@ -3,7 +3,7 @@ import discord
 import datetime
 import random
 import asyncio
-
+from discord.ext import commands
 import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials 
@@ -13,9 +13,6 @@ from discord.ext import commands
 
 #list = []
 #apre = 'おさかなのサーバー'
-
-from discord.ext import commands
-import asyncio
 
 client = commands.Bot(command_prefix='.')
 @client.event
@@ -41,7 +38,7 @@ async def fish2(ctx, about = "🐟🐟🐟 戦績記録使い方 🐟🐟🐟"):
   help1 = discord.Embed(title=about,color=0xe74c3c,description=".p 点数: 個人の結果記録,符号＋点数を入力する(負けた試合は負),例:.p 100,.p -77\n.r 点差 チーム名: 交流戦の結果記録,例:.r 40 IsK,.r -50 Lv\n.revise 点数: 個人の結果修正,例:.p -80を消す→.revise -80\n.stats/.teamstats/.history: 戦績\n.vs チーム名: 対象チームとの戦績確認\n.rename/.teamrename: 名前の変更\n.reset/.teamreset: 戦績(statsの内容)リセット\n.teamdelete: 対戦履歴削除\n作成者: さかな(@sakana8dx)\nさかなBot導入: https://discord.com/oauth2/authorize?client_id=619351049752543234&permissions=473152&scope=bot")
   await ctx.send(embed=help1)
 
-
+"""
 @client.command()
 async def p(ctx,a):
 
@@ -315,7 +312,7 @@ async def teamrename(ctx):
   msg = await ctx.send("名前を修正しました")
   await asyncio.sleep(3)
   await msg.delete()
-
+"""
 
 token = os.environ['DISCORD_BOT_TOKEN']
 client.run(token)
