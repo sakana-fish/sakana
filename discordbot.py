@@ -22,7 +22,7 @@ gc = gspread.authorize(credentials)
 wb = gc.open_by_key(os.getenv('Sheetkey'))
 ws = wb.worksheet("さかなテスト")
 ws2 = wb.worksheet("交流戦記録")
-"""
+
 
 @client.command()
 async def p(ctx,a):
@@ -72,14 +72,14 @@ async def p(ctx,a):
     await msg.delete()
   
   await ctx.channel.purge(limit=1)
-  
+"""
   
 @client.command()
 async def c(ctx):
   print(ctx.author.id,ctx.guild.id,ctx.author.id+ctx.guild.id)
   await ctx.send(os.path.abspath('spreadsheet-test-282320-a54e87c8c929.json'))
   
-
+"""
 @client.command()
 async def stats(ctx):
   cell=ws.find(str(ctx.author.id+ctx.guild.id))
@@ -236,6 +236,7 @@ async def a(ctx):
     print("Timeout")
   else:
     print("OK")
-  
+"""
+
 token = os.environ['DISCORD_BOT_TOKEN']
 client.run(token)
