@@ -27,6 +27,10 @@ async def fish(ctx2, about = "🐟🐟🐟 使い方 🐟🐟🐟"):
   await ctx2.send(embed=help1)       
    
 @client.command()
+async def c(ctx):
+  print(os.path.abspath('spreadsheet-test-282320-a54e87c8c929.json'))
+
+@client.command()
 async def t(ctx):
   def check(m):
     return m.author.id == ctx.author.id
