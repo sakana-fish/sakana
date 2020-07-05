@@ -4,6 +4,11 @@ import os
 import random
 import asyncio
 
+import gspread
+import json
+from oauth2client.service_account import ServiceAccountCredentials 
+from discord.ext import commands
+
 #https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
 
 #list = []
@@ -21,6 +26,215 @@ async def on_ready():
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
 
+    
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name('/app/spreadsheet-test-282320-a54e87c8c929.json', scope)
+gc = gspread.authorize(credentials)
+wb = gc.open_by_key(os.getenv('Sheetkey'))
+ws = wb.worksheet("さかなテスト")
+ws2 = wb.worksheet("交流戦記録")
+
+@client.command()
+async def p(ctx,a):
+
+  def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+  try:
+    cell=ws.find(str(ctx.author.id+ctx.guild.id)) 
+  except:
+    ws.append_row([str(ctx.author.id+ctx.guild.id),ctx.guild.name,ctx.author.name])
+    cell=ws.find(str(ctx.author.id+ctx.guild.id))
+    for i in range(10):
+      ws.update_cell(cell.row,len(ws.row_values(cell.row))+1,0)
+
+  #C2:totalnum	D3:winnum	E4:losenum	F5:winrate	G6:ave	H7:winave	I8:loseave	J9:total	K10:wintotal	L11:losetotal
+
+  b=ws.row_values(cell.row)
+  if is_int(a)==False:
+    msg = await ctx.send("エラー")
+    await asyncio.sleep(3)
+    await msg.delete()
+  else:
+    b[3]=int(b[3])+1
+    a=int(a)
+    if a>0:
+      b[4]=int(b[4])+1
+      b[11]=int(b[11])+a
+      b[8]=b[11]//b[4]
+    else:
+      a=-1*int(a)
+      b[5]=int(b[5])+1
+      b[12]=int(b[12])+a
+      b[9]=b[12]//b[5]
+    b[10]=int(b[10])+a
+    b[6]=int(b[4])*100//b[3]
+    b[7]=b[10]//b[3]
+    for i in range(13):
+      ws.update_cell(cell.row,i+1,b[i])
+ 
+    msg = await ctx.send("記録しました")
+    await asyncio.sleep(3)
+    await msg.delete()
+  
+  await ctx.channel.purge(limit=1)
+  
+  
+@client.command()
+async def c(ctx):
+  print(ctx.author.id,ctx.guild.id,ctx.author.id+ctx.guild.id)
+  
+
+@client.command()
+async def stats(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  b=ws.row_values(cell.row)
+  msg = discord.Embed(title="stats",colour=0x1e90ff)
+  msg.add_field(name="name", value=b[1], inline=False)
+  msg.add_field(name="play", value=b[3], inline=False)
+  msg.add_field(name="win rate", value=b[6]+"%", inline=False)
+  msg.add_field(name="average", value=b[7], inline=False)
+  msg.add_field(name="win-ave", value=b[8], inline=False)
+  msg.add_field(name="lose-ave", value=b[9], inline=False)
+  await ctx.channel.purge(limit=1)  
+  msg = await ctx.send(embed=msg)  
+  await asyncio.sleep(15)
+  await msg.delete() 
+
+
+@client.command()
+async def rename(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  ws.update_cell(cell.row,2,ctx.author.name)
+  msg = await ctx.send("名前を修正しました")
+  await asyncio.sleep(3)
+  await msg.delete()
+
+
+@client.command()
+async def revise(ctx,a):
+  def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+  try:
+    cell=ws.find(str(ctx.author.id+ctx.guild.id)) 
+  except:
+    ws.append_row([str(ctx.author.id+ctx.guild.id),ctx.guild.name,ctx.author.name])
+    cell=ws.find(str(ctx.author.id+ctx.guild.id))
+    for i in range(10):
+      ws.update_cell(cell.row,len(ws.row_values(cell.row))+1,0)
+
+  #C2:totalnum	D3:winnum	E4:losenum	F5:winrate	G6:ave	H7:winave	I8:loseave	J9:total	K10:wintotal	L11:losetotal
+
+  b=ws.row_values(cell.row)
+  if is_int(a)==False:
+    msg = await ctx.send("エラー")
+    await asyncio.sleep(3)
+    await msg.delete()
+  else:
+    b[3]=int(b[3])-1
+    a=int(a)
+    if a>0:
+      b[4]=int(b[4])-1
+      b[11]=int(b[11])-a
+      b[8]=b[11]//b[4]
+    else:
+      a=-1*int(a)
+      b[5]=int(b[5])-1
+      b[12]=int(b[12])-a
+      b[9]=b[12]//b[5]
+    b[10]=int(b[10])-a
+    b[6]=int(b[4])*100//b[3]
+    b[7]=b[10]//b[3]
+    for i in range(13):
+      ws.update_cell(cell.row,i+1,b[i])
+ 
+    msg = await ctx.send("修正しました")
+    await asyncio.sleep(3)
+    await msg.delete()
+  
+  await ctx.channel.purge(limit=1)
+
+
+@client.command()
+async def result(ctx):
+  cell=ws.find(str(ctx.guild.id))
+  b=ws.row_values(cell.row)
+  msg = discord.Embed(title="stats",colour=0x1e90ff)
+  msg.add_field(name="name", value=b[2], inline=False)
+  msg.add_field(name="play", value=b[3], inline=False)
+  msg.add_field(name="win rate", value=b[6]+"%", inline=False)
+  await ctx.channel.purge(limit=1)  
+  msg = await ctx.send(embed=msg)  
+  await asyncio.sleep(15)
+  await msg.delete() 
+
+
+@client.command()
+async def reset(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  for i in range(10):
+    ws.update_cell(cell.row,i+4,0)
+
+  msg = await ctx.send("リセットしました")
+  await asyncio.sleep(3)
+  await msg.delete()
+
+@client.command()
+async def r(ctx,a,b):
+  def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+  try:
+    cell=ws.find(str(ctx.guild.id)) 
+  except:
+    ws.append_row([str(ctx.guild.id),ctx.guild.name,"None"])
+    cell=ws.find(str(ctx.guild.id))
+    for i in range(4):
+      ws.update_cell(cell.row,len(ws.row_values(cell.row))+1,0)
+
+  b=ws.row_values(cell.row)
+  if is_int(a)==False:
+    msg = await ctx.send("エラー")
+    await asyncio.sleep(3)
+    await msg.delete()
+  else:
+    b[3]=int(b[3])+1
+    a=int(a)
+    if a>0:
+      b[4]=int(b[4])+1      
+    else:      
+      b[5]=int(b[5])+1
+    b[6]=b[3]*100//int(b[4])
+  for i in range(7):
+      ws.update_cell(cell.row,i+1,b[i])
+
+
+@client.command()
+async def teamstats(ctx):
+  cell=ws.find(str(ctx.author.id+ctx.guild.id))
+  b=ws.row_values(cell.row)
+  msg = discord.Embed(title="stats",colour=0x1e90ff)
+  msg.add_field(name="name", value=b[1], inline=False)
+  msg.add_field(name="play", value=b[3], inline=False)
+  msg.add_field(name="win rate", value=b[6]+"%", inline=False)
+  await ctx.channel.purge(limit=1)  
+  msg = await ctx.send(embed=msg)  
+  await asyncio.sleep(15)
+  await msg.delete() 
+    
 @client.command()
 async def fish(ctx2, about = "🐟🐟🐟 使い方 🐟🐟🐟"):
   help1 = discord.Embed(title=about,color=0xe74c3c,description=".s,.s2,.s3: 交流戦募集開始※12時間で停止 英語スタンプ→挙手 ×スタンプ→挙手全へ\n.rec: 募集開始(.rec 募集名 人数 制限時間(分))\n※募集開始した人の👋スタンプで募集終了\n.cal: 即時集計。順位は16進数でも入力可、recallで呼び戻し、endで強制終了\n.ran 数字: ランダムに数字出力\n.dev 数字 リスト: 組み分け\n.choose リスト: 選択\n.vote: 匿名アンケート(2択)\n作成者: さかな(@sakana8dx)\nさかなBot導入: https://discord.com/oauth2/authorize?client_id=619351049752543234&permissions=473152&scope=bot")
