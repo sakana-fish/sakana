@@ -37,8 +37,9 @@ async def p(ctx,a):
         return False
 
   sheetkey = os.environ['SHEETKEY']
+  path = os.environ['MAIL']
   scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-  credentials = ServiceAccountCredentials.from_json_keyfile_name('/app/spreadsheet-test-282320-a54e87c8c929.json', scope)
+  credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
   gc = gspread.authorize(credentials)
   wb = gc.open_by_key(sheetkey)
   ws = wb.worksheet("さかなテスト")
