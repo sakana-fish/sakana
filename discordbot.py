@@ -1,7 +1,6 @@
 import discord
 import datetime
 import os
-import keep_alive
 import random
 import asyncio
 import gspread
