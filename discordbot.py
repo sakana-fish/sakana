@@ -4,8 +4,8 @@ import datetime
 import random
 import asyncio
 from discord.ext import commands
-import gspread
-#import json
+#import gspread
+import json
 from oauth2client.service_account import ServiceAccountCredentials 
 
 #https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
