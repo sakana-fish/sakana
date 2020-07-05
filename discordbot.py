@@ -16,9 +16,6 @@ async def on_ready():
     print('Logged in')
     print('------')  
     
-
-token = os.environ['DISCORD_BOT_TOKEN']
-client.run(token)
     
 """    
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -243,3 +240,5 @@ async def a(ctx):
     print("OK")
 """
 
+token = os.environ['DISCORD_BOT_TOKEN']
+client.run(token)
