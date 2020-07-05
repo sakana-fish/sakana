@@ -15,6 +15,11 @@ client = commands.Bot(command_prefix='.')
 async def on_ready():
     print('Logged in')
     print('------')  
+    
+
+token = os.environ['DISCORD_BOT_TOKEN']
+client.run(token)
+    
 """    
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('/home/runner/FH/spreadsheet-test-282320-a54e87c8c929.json', scope)
@@ -238,5 +243,3 @@ async def a(ctx):
     print("OK")
 """
 
-token = os.environ['DISCORD_BOT_TOKEN']
-client.run(token)
