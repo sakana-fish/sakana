@@ -10,6 +10,15 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials 
 
 
+sheetkey = os.environ['SHEETKEY']
+path = os.environ['MAIL']
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
+gc = gspread.authorize(credentials)
+wb = gc.open_by_key(sheetkey)
+ws = wb.worksheet("戦績記録")
+ws2 = wb.worksheet("交流戦記録")  
+
 #https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
 
 #list = []
@@ -23,15 +32,6 @@ async def on_ready():
     print(client.user.id)
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
-
-sheetkey = os.environ['SHEETKEY']
-path = os.environ['MAIL']
-scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
-gc = gspread.authorize(credentials)
-wb = gc.open_by_key(sheetkey)
-ws = wb.worksheet("戦績記録")
-ws2 = wb.worksheet("交流戦記録")  
 
 
 @client.command()
