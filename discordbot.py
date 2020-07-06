@@ -313,7 +313,7 @@ async def teamrename(ctx):
   msg = await ctx.send("名前を修正しました")
   await asyncio.sleep(3)
   await msg.delete()
-"""
+
 
 token = os.environ['DISCORD_BOT_TOKEN']
 client.run(token)
