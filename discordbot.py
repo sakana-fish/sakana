@@ -4,11 +4,11 @@ import datetime
 import random
 import asyncio
 from discord.ext import commands
-"""
+
 import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials 
-"""
+
 
 #https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
 
@@ -23,7 +23,7 @@ async def on_ready():
     print(client.user.id)
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
-"""
+
 sheetkey = os.environ['SHEETKEY']
 path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -32,14 +32,14 @@ gc = gspread.authorize(credentials)
 wb = gc.open_by_key(sheetkey)
 ws = wb.worksheet("戦績記録")
 ws2 = wb.worksheet("交流戦記録")  
-"""
+
 
 @client.command()
 async def fish3(ctx, about = "🐟🐟🐟 戦績記録使い方 🐟🐟🐟"):
   help1 = discord.Embed(title=about,color=0xe74c3c,description=".p 点数: 個人の結果記録,符号＋点数を入力する(負けた試合は負),例:.p 100,.p -77\n.r 点差 チーム名: 交流戦の結果記録,例:.r 40 IsK,.r -50 Lv\n.revise 点数: 個人の結果修正,例:.p -80を消す→.revise -80\n.stats/.teamstats/.history: 戦績\n.vs チーム名: 対象チームとの戦績確認\n.rename/.teamrename: 名前の変更\n.reset/.teamreset: 戦績(statsの内容)リセット\n.teamdelete: 対戦履歴削除\n作成者: さかな(@sakana8dx)\nさかなBot導入: https://discord.com/oauth2/authorize?client_id=619351049752543234&permissions=473152&scope=bot")
   await ctx.send(embed=help1)
 
-"""
+
 @client.command()
 async def p(ctx,a):
 
