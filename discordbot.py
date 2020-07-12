@@ -68,7 +68,7 @@ async def entry(ctx,a):
   if ctx.channel.id == chbot:
     try:
       list=ws.col_values(1)
-      row=list.index(a)+1
+      list.index(a)
     except:
       ws.append_row([a,1500,0,0,0,0,str(ctx.author.id),ctx.author.name,0,0,0,0,0,0])
       await ctx.guild.create_role(name=a)
@@ -95,7 +95,8 @@ async def entry(ctx,a):
 async def member(ctx,a):
   if ctx.channel.id == chbot:
     try:
-      cell=ws.find(a) 
+      list=ws.col_values(1)
+      row=list.index(a)+1
     except:
       msg=await ctx.send("エラー チーム名を確認してください")
       await asyncio.sleep(3)
@@ -109,8 +110,6 @@ async def member(ctx,a):
         await msg.delete()
         #await ctx.channel.purge(limit=1)
       else:
-        list=ws.col_values(1)
-        row=list.index(a)+1
         data=ws.row_values(row)
         #if #登録人数が3名以内なら
         j=0
@@ -161,7 +160,7 @@ async def deletemember(ctx,a):
           ws.update_cell(row,j,0)
           ws.update_cell(row,j+1,0)
           try:
-            b=ws.find(str(ctx.author.id))
+            ws.find(str(ctx.author.id))
           except:          
             role = ctx.guild.get_role(roleud) #updaterの役職のIDを入力
             await ctx.message.author.remove_roles(role)
@@ -272,13 +271,6 @@ async def result(ctx,a,c,d):
 #-----------------------------------------------------
 @client.command()
 async def revise(ctx,n):
-  def is_int(s):
-    try:
-        int(s)
-        return True
-    except ValueError:
-        return False
-
   if ctx.channel.id == chupdater:
     try:
       list=ws2.col_values(1)
