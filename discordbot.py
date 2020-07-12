@@ -228,7 +228,10 @@ async def result(ctx,a,c,d):
             b[2]=int(b[2])+1
             b2[3]=int(b2[3])+1
           W=1/(pow(10,(int(b[1])-int(b2[1]))/400)+1)
-          e=math.floor(100*W*(1+pow(d/200,2))) #レートの計算式、いい式を募集
+          if d==0:
+            e=e=math.floor(100*W)
+          else:
+            e=math.floor(100*W*(1+pow(d/200,2))) #レートの計算式、いい式を募集
           b[1]=int(b[1])+e
           b2[1]=int(b2[1])-e
           b[5]=int(b[2])*100//int(b[4])
