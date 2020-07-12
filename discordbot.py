@@ -477,6 +477,8 @@ async def c(ctx,a,n):
           list2=ws5.col_values(1)
           row=list2.index(a)+1
         except:
+          now=datetime.datetime.now()#
+          now=now.hour*60+now.minute#
           n=int(n)
           list=ws.col_values(1)
           row=list.index(a)+1    
@@ -484,23 +486,27 @@ async def c(ctx,a,n):
           min=int(b[1])-n
           max=int(b[1])+n
           d=0
+          e=0
           for i in range(len(list2)-1):
             b2=ws5.row_values(i+2)
-            print(b2)
-            if b2[5]==a or b2[6]==a:
-              pass
+            if abs(now-int(b2[8]))>60:#
+              ws5.delete_row(i+2)
+              e+=1
             else:
-              if min<int(b2[1]) and int(b2[1])<max and int(b2[2])<int(b[1]) and int(b[1])<int(b2[3]):
-                channel1 = client.get_channel(chboshu)
-                await channel1.send(f"対戦相手が決まりました\n{b2[0]} vs {a} {b2[5]} {ctx.author.mention}" )
-                await channel1.send(f"{len(list2)-2}チームが募集中" )
-                d=1
-                ws5.delete_row(i+2)
-                break
+              if b2[5]==a or b2[6]==a:
+                pass
+              else:
+                if min<int(b2[1]) and int(b2[1])<max and int(b2[2])<int(b[1]) and int(b[1])<int(b2[3]):
+                  channel1 = client.get_channel(chboshu)
+                  await channel1.send(f"対戦相手が決まりました\n{b2[0]} vs {a} {b2[5]} {ctx.author.mention}" )
+                  await channel1.send(f"{len(list2)-2-e}チームが募集中" )
+                  d=1
+                  ws5.delete_row(i+2)
+                  break
           if d==0:
-            ws5.append_row([a,b[1],min,max,str(ctx.author.id),ctx.author.mention,b[12],b[13]])
+            ws5.append_row([a,b[1],min,max,str(ctx.author.id),ctx.author.mention,b[12],b[13],now])
             channel1 = client.get_channel(chboshu)
-            msg = await channel1.send(f"募集開始しました {len(list2)}チームが募集中")
+            msg = await channel1.send(f"募集開始しました {len(list2)-e}チームが募集中")
         else:
           msg=await ctx.send(f"募集中です")
           await asyncio.sleep(3)
@@ -562,6 +568,8 @@ async def c2(ctx,a,n):
           list2=ws6.col_values(1)
           row=list2.index(a)+1
         except:
+          now=datetime.datetime.now()#
+          now=now.hour*60+now.minute#
           n=int(n)
           list=ws.col_values(1)
           row=list.index(a)+1    
@@ -569,23 +577,27 @@ async def c2(ctx,a,n):
           min=int(b[1])-n
           max=int(b[1])+n
           d=0
+          e=0
           for i in range(len(list2)-1):
             b2=ws6.row_values(i+2)
-            print(b2)
-            if b2[5]==a or b2[6]==a:
-              pass
+            if abs(now-int(b2[8]))>60:#
+              ws6.delete_row(i+2)
+              e+=1
             else:
-              if min<int(b2[1]) and int(b2[1])<max and int(b2[2])<int(b[1]) and int(b[1])<int(b2[3]):
-                channel1 = client.get_channel(chboshu2)
-                await channel1.send(f"対戦相手が決まりました\n{b2[0]} vs {a} {b2[5]} {ctx.author.mention}" )
-                await channel1.send(f"{len(list2)-2}チームが募集中" )
-                d=1
-                ws6.delete_row(i+2)
-                break
+              if b2[5]==a or b2[6]==a:
+                pass
+              else:
+                if min<int(b2[1]) and int(b2[1])<max and int(b2[2])<int(b[1]) and int(b[1])<int(b2[3]):
+                  channel1 = client.get_channel(chboshu2)
+                  await channel1.send(f"対戦相手が決まりました\n{b2[0]} vs {a} {b2[5]} {ctx.author.mention}" )
+                  await channel1.send(f"{len(list2)-2-e}チームが募集中" )
+                  d=1
+                  ws6.delete_row(i+2)
+                  break
           if d==0:
-            ws6.append_row([a,b[1],min,max,str(ctx.author.id),ctx.author.mention,b[12],b[13]])
+            ws6.append_row([a,b[1],min,max,str(ctx.author.id),ctx.author.mention,b[12],b[13],e])
             channel1 = client.get_channel(chboshu2)
-            msg = await channel1.send(f"募集開始しました {len(list2)}チームが募集中")
+            msg = await channel1.send(f"募集開始しました {len(list2)-e}チームが募集中")
         else:
           msg=await ctx.send(f"募集中です")
           await asyncio.sleep(3)
