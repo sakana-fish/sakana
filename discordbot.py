@@ -595,7 +595,7 @@ async def c2(ctx,a,n):
                   ws6.delete_row(i+2)
                   break
           if d==0:
-            ws6.append_row([a,b[1],min,max,str(ctx.author.id),ctx.author.mention,b[12],b[13],e])
+            ws6.append_row([a,b[1],min,max,str(ctx.author.id),ctx.author.mention,b[12],b[13],now])
             channel1 = client.get_channel(chboshu2)
             msg = await channel1.send(f"募集開始しました {len(list2)-e}チームが募集中")
         else:
