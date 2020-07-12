@@ -56,12 +56,12 @@ async def check(ctx,a):
     return True
   else:
     return False
-
+"""
 #-----------------------------------------------------
 @client.command()
 async def test(ctx):
   await ctx.channel.purge(limit=10)
-
+"""
 #-----------------------------------------------------
 @client.command()
 async def entry(ctx,a):
