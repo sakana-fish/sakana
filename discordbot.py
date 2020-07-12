@@ -477,8 +477,8 @@ async def c(ctx,a,n):
           list2=ws5.col_values(1)
           row=list2.index(a)+1
         except:
-          now=datetime.datetime.now()#
-          now=now.hour*60+now.minute#
+          now=datetime.datetime.now()
+          now=now.day*24*60+now.hour*60+now.minute
           n=int(n)
           list=ws.col_values(1)
           row=list.index(a)+1    
@@ -568,8 +568,8 @@ async def c2(ctx,a,n):
           list2=ws6.col_values(1)
           row=list2.index(a)+1
         except:
-          now=datetime.datetime.now()#
-          now=now.hour*60+now.minute#
+          now=datetime.datetime.now()
+          now=now.day*24*60+now.hour*60+now.minute
           n=int(n)
           list=ws.col_values(1)
           row=list.index(a)+1    
