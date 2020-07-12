@@ -319,8 +319,14 @@ async def revise(ctx,n):
           b2[3]=int(b2[3])-1
         b[1]=int(b[1])-e
         b2[1]=int(b2[1])+e
-        b[5]=int(b[2])*100//int(b[4])
-        b2[5]=int(b2[2])*100//int(b2[4])
+        if int(b[2])==0:
+          b[5]=0
+        else:
+          b[5]=int(b[2])*100//int(b[4])
+        if int(b2[2])==0:
+          b2[5]=0
+        else:
+          b2[5]=int(b2[2])*100//int(b2[4])
         for i in range(14):
           ws.update_cell(row,i+1,b[i])
         for i in range(14):
