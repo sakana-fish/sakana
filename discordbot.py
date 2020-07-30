@@ -48,7 +48,7 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
     
 sheet = os.environ['SHEETKEY']
-path = os.environ['MAIL']
+#path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']    
 credential = {
                 "type": "service_account",
@@ -73,7 +73,7 @@ ws = wb.worksheet("挙手管理")
 
 botid=703540995492675634 #botのid
 
-"""
+
 async def add(channel,row,n,name,mention):
     b=ws.row_values(row)
     if mention in b[n-11]: #21→3,10,17
@@ -300,7 +300,8 @@ async def on_raw_reaction_add(payload):
                 ws.update_cell(row,25,str(msg2.id))
     
     
-
+"""
+    
 #-----------------------------------------------------
 async def check(ctx,a):
   role = discord.utils.find(lambda r: r.name == a, ctx.guild.roles)
