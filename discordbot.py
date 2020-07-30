@@ -9,8 +9,8 @@ import gspread
 import json
 from oauth2client.service_account import ServiceAccountCredentials 
 
-#https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
 """
+#https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
 sheet = os.environ['SHEETKEY']
 path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -47,7 +47,6 @@ async def on_ready():
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
  
-"""
 sheet = os.environ['SHEETKEY']
 #path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']    
@@ -301,7 +300,6 @@ async def on_raw_reaction_add(payload):
                 ws.update_cell(row,25,str(msg2.id))
     
     
-"""
 """
     
 #-----------------------------------------------------
