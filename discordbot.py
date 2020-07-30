@@ -10,7 +10,7 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials 
 
 #https://ja.wikipedia.org/wiki/Unicode%E3%81%AEEmoji%E3%81%AE%E4%B8%80%E8%A6%A7
-
+"""
 sheet = os.environ['SHEETKEY']
 path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
@@ -35,7 +35,7 @@ chresult=731847038219714640
 chreport=731847107853680770
 
 roleud=732613661247406080
-
+"""
 
 client = commands.Bot(command_prefix='.')
 
@@ -46,6 +46,260 @@ async def on_ready():
     print(client.user.id)
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
+    
+    
+
+credential = {
+                "type": "service_account",
+                "project_id": os.environ['SHEET_PROJECT_ID'],
+                "private_key_id": os.environ['SHEET_PRIVATE_KEY_ID'],
+                "private_key": os.environ['SHEET_PRIVATE_KEY'],
+                "client_email": os.environ['SHEET_CLIENT_EMAIL'],
+                "client_id": os.environ['SHEET_CLIENT_ID'],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                "client_x509_cert_url":  os.environ['SHEET_CLIENT_X509_CERT_URL']
+             }
+
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(credential, scope)
+
+gc = gspread.authorize(credentials)
+
+gc = gspread.authorize(credentials)
+wb = gc.open_by_key(sheet)
+ws = wb.worksheet("挙手管理") 
+
+botid=703540995492675634 #botのid
+
+async def add(channel,row,n,name,mention):
+    b=ws.row_values(row)
+    if mention in b[n-11]: #21→3,10,17
+        pass
+    else:
+        b[n-18] += name
+        b[n-11] += mention
+        b[n-4] = int(b[n-4])-1
+        if b[n-4] == 0:
+            await channel.send(f'{n}〆 {b[n-11]}')
+
+        ws.update_cell(row,n-17,b[n-18])
+        ws.update_cell(row,n-10,b[n-11])
+        ws.update_cell(row,n-3,b[n-4])
+     
+     
+@client.command()
+async def list(ctx,n): #.sの機能
+    if int(n)>19 and int(n)<27: 
+        a=str(ctx.guild.id)
+        list=ws.col_values(1)
+        row=list.index(a)+1
+        b=ws.row_values(row)
+        await ctx.send(b[int(n)-18])
+
+
+@client.command()
+async def mention(ctx,n): #.sの機能
+    if int(n)>19 and int(n)<27: 
+        a=str(ctx.guild.id)
+        list=ws.col_values(1)
+        row=list.index(a)+1
+        b=ws.row_values(row)
+        await ctx.send(b[int(n)-11])
+
+
+@client.command()
+async def test(ctx): #.sの機能
+    msg=await ctx.send("Loading...")
+    a=str(ctx.guild.id)
+    try:
+      list=ws.col_values(1)
+      row=list.index(a)+1
+    except:
+      ws.append_row([str(ctx.guild.id)])
+      list=ws.col_values(1)
+      row=list.index(a)+1
+      for i in range(22):
+          ws.update_cell(row,i+2,0)
+
+    b=ws.row_values(row)
+    for i in range(7):
+        b[i+2]='> '
+    for i in range(7):
+        b[i+9]=''
+    for i in range(7):
+        b[i+16]=6
+    for i in range(21):
+        ws.update_cell(row,i+3,b[i+2])
+    ws.update_cell(row,24,1)
+    
+    await msg.delete()
+    now=datetime.datetime.now()
+    month=now.month
+    day=now.day
+    text=f"交流戦募集 {month}月{day}日"
+    test = discord.Embed(title=text,colour=0x1e90ff)
+    test.add_field(name=f"21@6 ", value='>', inline=False)
+    test.add_field(name=f"22@6 ", value='>', inline=False)
+    test.add_field(name=f"23@6 ", value='>', inline=False)
+    test.add_field(name=f"24@6 ", value='>', inline=False)
+    msg = await ctx.send(embed=test)
+    await msg.add_reaction('🇦')
+    await msg.add_reaction('🇧')
+    await msg.add_reaction('🇨')
+    await msg.add_reaction('🇩')
+    await msg.add_reaction('✖')
+    await msg.add_reaction('↩')
+    msg2=await ctx.send(f"21@6 22@6 23@6 24@6")
+    ws.update_cell(row,2,str(msg.id))                
+    ws.update_cell(row,25,str(msg2.id))                
+
+
+#-----------------------------------------------------
+@client.command()
+async def test2(ctx): #.sの機能
+    msg=await ctx.send("Loading...")
+    a=str(ctx.guild.id)
+    try:
+      list=ws.col_values(1)
+      row=list.index(a)+1
+    except:
+      ws.append_row([str(ctx.guild.id)])
+      list=ws.col_values(1)
+      row=list.index(a)+1
+      for i in range(22):
+          ws.update_cell(row,i+2,0)
+
+    b=ws.row_values(row)
+    for i in range(7):
+        b[i+2]='> '
+    for i in range(7):
+        b[i+9]=''
+    for i in range(7):
+        b[i+16]=6
+    for i in range(21):
+        ws.update_cell(row,i+3,b[i+2])
+    ws.update_cell(row,24,2)
+    
+    await msg.delete()
+    now=datetime.datetime.now()
+    month=now.month
+    day=now.day
+    text=f"交流戦募集 {month}月{day}日"
+    test = discord.Embed(title=text,colour=0x1e90ff)
+    test.add_field(name=f"20@6 ", value='>', inline=False)
+    test.add_field(name=f"21@6 ", value='>', inline=False)
+    test.add_field(name=f"22@6 ", value='>', inline=False)
+    test.add_field(name=f"23@6 ", value='>', inline=False)
+    test.add_field(name=f"24@6 ", value='>', inline=False)
+    test.add_field(name=f"25@6 ", value='>', inline=False)
+    test.add_field(name=f"26@6 ", value='>', inline=False)
+    msg = await ctx.send(embed=test)
+    await msg.add_reaction('🇴')
+    await msg.add_reaction('🇦')
+    await msg.add_reaction('🇧')
+    await msg.add_reaction('🇨')
+    await msg.add_reaction('🇩')
+    await msg.add_reaction('🇪')
+    await msg.add_reaction('🇫')
+    await msg.add_reaction('✖')
+    await msg.add_reaction('↩')
+    msg2=await ctx.send(f"20@6 21@6 22@6 23@6 24@6 25@6 26@6")
+    ws.update_cell(row,2,str(msg.id)) 
+    ws.update_cell(row,25,str(msg2.id))                
+
+
+#-----------------------------------------------------
+@client.event  
+async def on_raw_reaction_add(payload):
+    #print(payload.guild_id)
+    channel = client.get_channel(payload.channel_id)
+    msg=await channel.fetch_message(payload.message_id)
+    if msg.author.id == botid:
+        if payload.member.bot == False:
+            list=ws.col_values(1)
+            row=list.index(str(payload.guild_id))+1
+            b=ws.row_values(row)
+            if msg.id == int(b[1]):
+                await msg.remove_reaction(str(payload.emoji),payload.member)
+                name=payload.member.name+' '
+                mention='<@!'+str(payload.member.id)+'>'+' '
+                if str(payload.emoji) == '🇴':
+                    n=20
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '🇦':
+                    n=21
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '🇧':
+                    n=22
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '🇨':
+                    n=23
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '🇩':
+                    n=24
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '🇪':
+                    n=25
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '🇫':
+                    n=26
+                    await add(channel,row,n,name,mention)
+                if str(payload.emoji) == '✖':
+                    for i in range(7):
+                        if mention in b[9+i]: #21→3,10,17
+                            b[2+i]=b[2+i].replace(name,'')
+                            b[9+i]=b[9+i].replace(mention,'')
+                            b[16+i] = int(b[16+i])+1
+                            ws.update_cell(row,3+i,b[2+i])
+                            ws.update_cell(row,10+i,b[9+i])
+                            ws.update_cell(row,17+i,b[16+i])
+
+                b=ws.row_values(row) #21→3,10,17
+                now=datetime.datetime.now()
+                month=now.month
+                day=now.day
+                text=f"交流戦募集 {month}月{day}日"
+                test = discord.Embed(title=text,colour=0x1e90ff)
+                if int(b[23])==2:
+                    test.add_field(name=f"20@{b[16]} ", value=b[2], inline=False)
+                test.add_field(name=f"21@{b[17]} ", value=b[3], inline=False)
+                test.add_field(name=f"22@{b[18]} ", value=b[4], inline=False)
+                test.add_field(name=f"23@{b[19]} ", value=b[5], inline=False)
+                test.add_field(name=f"24@{b[20]} ", value=b[6], inline=False)
+                if int(b[23])==2:
+                    test.add_field(name=f"25@{b[21]} ", value=b[7], inline=False)
+                    test.add_field(name=f"26@{b[22]} ", value=b[8], inline=False)
+
+                if str(payload.emoji) == '↩':
+                    await msg.delete()
+                    msg = await channel.send(embed=test)
+                    if int(b[23])==2:
+                        await msg.add_reaction('🇴')
+                    await msg.add_reaction('🇦')
+                    await msg.add_reaction('🇧')
+                    await msg.add_reaction('🇨')
+                    await msg.add_reaction('🇩')
+                    if int(b[23])==2:
+                        await msg.add_reaction('🇪')
+                        await msg.add_reaction('🇫')
+                    await msg.add_reaction('✖')
+                    await msg.add_reaction('↩')
+                    ws.update_cell(row,2,str(msg.id))
+                else:
+                    await msg.edit(embed=test)
+
+                msg2=await channel.fetch_message(int(b[24]))
+                await msg2.delete()
+                if int(b[23])==1:
+                    msg2=await channel.send(f"21@{b[17]} 22@{b[18]} 23@{b[19]} 24@{b[20]}")
+                else:
+                    msg2=await channel.send(f"20@{b[16]} 21@{b[17]} 22@{b[18]} 23@{b[19]} 24@{b[20]} 25@{b[21]} 26@{b[22]}")
+                ws.update_cell(row,25,str(msg2.id))
+    
+    
+    
+"""
 
 #-----------------------------------------------------
 async def check(ctx,a):
@@ -56,12 +310,12 @@ async def check(ctx,a):
     return True
   else:
     return False
-"""
+
 #-----------------------------------------------------
 @client.command()
 async def test(ctx):
   await ctx.channel.purge(limit=10)
-"""
+
 #-----------------------------------------------------
 @client.command()
 async def entry(ctx,a):
@@ -623,7 +877,7 @@ async def d2(ctx,a):
         await channel1.send(f"{len(list2)-2}チームが募集中")
 
 #-----------------------------------------------------
-
+"""
 
 token = os.environ['DISCORD_BOT_TOKEN']
 client.run(token)
