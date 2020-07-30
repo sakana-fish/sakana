@@ -47,8 +47,9 @@ async def on_ready():
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
     
-    
-
+sheet = os.environ['SHEETKEY']
+path = os.environ['MAIL']
+scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']    
 credential = {
                 "type": "service_account",
                 "project_id": os.environ['SHEET_PROJECT_ID'],
