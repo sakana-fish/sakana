@@ -46,7 +46,8 @@ async def on_ready():
     print(client.user.id)
     print('------')  
     await client.change_presence(activity=discord.Game(name='おさかな天国'))
-    
+ 
+"""
 sheet = os.environ['SHEETKEY']
 #path = os.environ['MAIL']
 scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']    
@@ -300,6 +301,7 @@ async def on_raw_reaction_add(payload):
                 ws.update_cell(row,25,str(msg2.id))
     
     
+"""
 """
     
 #-----------------------------------------------------
