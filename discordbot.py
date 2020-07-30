@@ -65,7 +65,7 @@ credential = {
 
 credentials = ServiceAccountCredentials.from_json_keyfile_dict(credential, scope)
 
-gc = gspread.authorize(credentials)
+#gc = gspread.authorize(credentials)
 
 gc = gspread.authorize(credentials)
 wb = gc.open_by_key(sheet)
